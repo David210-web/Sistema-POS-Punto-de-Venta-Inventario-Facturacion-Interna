@@ -1,0 +1,27 @@
+{
+  "version": "3.0",
+  "defaultProvider": "cdnjs",
+  "libraries": [
+    {
+      "library": "jquery@3.7.1",
+      "destination": "wwwroot/jquery/"
+    },
+    {
+      "library": "sweetalert2@11.23.0",
+      "destination": "wwwroot/sweetalert2/"
+    },
+    {
+      "library": "font-awesome@7.0.1",
+      "destination": "wwwroot/font-awesome/"
+    },
+    {
+      "library": "boxicons@2.1.4",
+      "destination": "wwwroot/boxicons/"
+    },
+    {
+      "provider": "cdnjs",
+      "library": "datatables@1.10.21",
+      "destination": "wwwroot/datatables/"
+    }
+  ]
+}

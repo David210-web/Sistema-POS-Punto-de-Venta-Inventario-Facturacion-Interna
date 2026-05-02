@@ -1,0 +1,74 @@
+<div class="page-header mb-4">
+    <div class="row align-items-center">
+        <div class="col">
+            <h1 class="page-title">Usuarios</h1>
+            <p class="page-subtitle">Administra los usuarios del sistema y sus permisos.</p>
+        </div>
+        <div class="col-auto">
+            <button class="btn btn-primary-custom px-4" data-bs-toggle="modal" data-bs-target="#modalUsuarios">
+                <i class="bx bx-plus me-1"></i> Agregar Usuario
+            </button>
+        </div>
+    </div>
+</div>
+
+<div class="content-card">
+    <div class="table-responsive">
+        <table class="table table-hover w-100" id="tblUsuarios">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Usuario</th>
+                    <th>Activo</th>
+                    <th>Rol</th>
+                    <th class="text-end">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="modal fade" id="modalUsuarios" tabindex="-1" aria-labelledby="modalUsuariosLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalUsuariosLabel">Agregar Usuarios</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-3">
+                        <label for="txtUsuario" class="form-label">Nombre:</label>
+                        <input type="text" class="form-control" id="txtUsuario">
+                    </div>
+                    <div class="col-3">
+                        <label for="txtPassword" class="form-label">Contraseña:</label>
+                        <input type="password" class="form-control" id="txtPassword">
+                    </div>
+                    <div class="col-3">
+                        <label class="col-form-label-sm" for="cbRol">Rol</label>
+                        <select class="form-select" id="cbRol" style="width:100%;">
+                            <option value="">&nbsp;</option>
+                        </select>
+                    </div>
+                    <div class="col-3">
+                        <label class="form-check-label" for="chActivo">
+                            Activo
+                        </label>
+                        <input class="form-check-input" type="checkbox" value="" id="chActivo">
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar <i class="bx bx-exit"></i> </button>
+                <button type="button" class="btn btn-primary" onclick="guardarUsuario()">Guardar <i class="bx bx-plus"></i> </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="/js/Usuario.js"></script>
+}

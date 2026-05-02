@@ -1,0 +1,161 @@
+<div class="page-header mb-4">
+    <div class="row align-items-center">
+        <div class="col">
+            <h1 class="page-title">Productos</h1>
+            <p class="page-subtitle">Define y gestiona los productos y stocks disponibles.</p>
+        </div>
+        <div class="col-auto">
+            <div class="btn-group gap-2">
+                <button class="btn btn-primary-custom px-4" data-bs-toggle="modal" data-bs-target="#modalProductos">
+                    <i class="bx bx-plus me-1"></i> Agregar Producto
+                </button>
+                <button class="btn btn-dark px-4" data-bs-toggle="modal" data-bs-target="#modalCategorias">
+                    <i class="bx bx-plus me-1"></i> Agregar Categoria
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="content-card">
+    <div class="table-responsive">
+        <table class="table table-hover w-100" id="tblProductos">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Nombre</th>
+                    <th>Codigo barras</th>
+                    <th>Precio unitario</th>
+                    <th>Stock Minimo</th>
+                    <th>Stock Actual</th>
+                    <th>Categoria</th>
+                    <th class="text-end">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="modal fade" id="modalProductos" tabindex="-1" aria-labelledby="modalProductosLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalProductosLabel">Agregar Productos</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="txtIdProducto" value="">
+                <div class="row">
+                    <div class="col-4">
+                        <label for="txtNombre" class="form-label">Nombre:</label>
+                        <input type="text" class="form-control" id="txtNombre">
+                    </div>
+                    <div class="col-4">
+                        <label for="txtCodigo" class="form-label">Codigo de Barras:</label>
+                        <input type="text" class="form-control" id="txtCodigo">
+                    </div>
+                    <div class="col-4">
+                        <label for="txtPrecio" class="form-label">Precio unitario:</label>
+                        <input type="number" step="0.01" class="form-control" id="txtPrecio">
+                    </div>
+                </div>
+                <div class="row mt-3">
+                    <div class="col-4">
+                        <label for="txtStockMinimo" class="form-label">Stock Minimo:</label>
+                        <input type="number" class="form-control" id="txtStockMinimo">
+                    </div>
+                    <div class="col-4">
+                        <label for="txtStockActual" class="form-label">Stock Actual:</label>
+                        <input type="number" class="form-control" id="txtStockActual" disabled>
+                        <div class="form-text text-muted" style="font-size: 0.75rem;">El stock inicial es 0. Use Ajuste de Stock para modificarlo.</div>
+                    </div>
+                    <div class="col-4">
+                        <label class="form-label" for="cbCategoria">Categoria</label>
+                        <select class="form-select" id="cbCategoria" style="width:100%;">
+                            <option value="">Seleccione una categoría</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar <i class="bx bx-exit"></i> </button>
+                <button type="button" class="btn btn-primary" onclick="guardarProducto()">Guardar <i class="bx bx-plus"></i> </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalCategorias" tabindex="-1" aria-labelledby="modalCategoriasLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalProductosLabel">Agregar Categorias</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="txtIdCategoria" value="">
+                <div class="row align-items-end">
+                    <div class="col-8">
+                        <label for="txtNombreCategoria" class="form-label">Nombre Categoría:</label>
+                        <input type="text" class="form-control" id="txtNombreCategoria">
+                    </div>
+                    <div class="col-4">
+                        <button type="button" class="btn btn-primary w-100" onclick="guardarCategoria()">Guardar Categoría <i class="bx bx-save"></i></button>
+                    </div>
+                </div>
+                <hr />
+                <div class="row">
+                    <div class="col-12">
+                        <div class="table-responsive">
+                            <table class="table table-hover w-100" id="tblCategorias">
+                                <thead>
+                                    <tr>
+                                        <th>Nombre</th>
+                                        <th class="text-end">Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar <i class="bx bx-exit"></i> </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalAjusteStock" tabindex="-1" aria-labelledby="modalAjusteStockLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalAjusteStockLabel">Ajuste de Stock</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="txtIdProductoAjuste" value="">
+                <div class="mb-3">
+                    <label for="txtCantidadAjuste" class="form-label">Cantidad a ajustar (Positiva o Negativa):</label>
+                    <input type="number" class="form-control" id="txtCantidadAjuste" placeholder="Ej: 5 o -3">
+                    <div class="form-text">Use números negativos para merma/daño, o positivos para ingreso.</div>
+                </div>
+                <div class="mb-3">
+                    <label for="txtJustificacionAjuste" class="form-label">Justificación:</label>
+                    <textarea class="form-control" id="txtJustificacionAjuste" rows="3" placeholder="Motivo del ajuste (Obligatorio)"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar <i class="bx bx-exit"></i> </button>
+                <button type="button" class="btn btn-warning" onclick="guardarAjusteStock()">Aplicar Ajuste <i class="bx bx-check"></i> </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="/js/Productos.js"></script>
+}

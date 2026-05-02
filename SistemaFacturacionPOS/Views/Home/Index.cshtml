@@ -1,0 +1,118 @@
+@{
+    ViewData["Title"] = "Dashboard";
+    
+    // Format date in Spanish
+    var today = DateTime.Now;
+    var culture = new System.Globalization.CultureInfo("es-ES");
+    var formattedDate = today.ToString("dddd, dd 'de' MMMM 'de' yyyy", culture);
+}
+
+<h1 class="page-title">Bienvenido, Admin</h1>
+<p class="page-subtitle">@formattedDate</p>
+
+<!-- Fila 1: Tarjetas de KPI -->
+<div class="row g-4 mb-4">
+    <!-- Tarjeta 1 -->
+    <div class="col-md-6 col-xl-3">
+        <div class="kpi-card">
+            <div class="kpi-info">
+                <div class="kpi-label">Ventas del Día</div>
+                <div class="kpi-value">$2,450.50</div>
+                <div class="kpi-sublabel">12 transacciones</div>
+            </div>
+            <div class="kpi-icon bg-blue">
+                <i class='bx bx-cart-alt'></i>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Tarjeta 2 -->
+    <div class="col-md-6 col-xl-3">
+        <div class="kpi-card">
+            <div class="kpi-info">
+                <div class="kpi-label">Productos</div>
+                <div class="kpi-value">156</div>
+                <div class="kpi-sublabel">5 con stock bajo</div>
+            </div>
+            <div class="kpi-icon bg-green">
+                <i class='bx bx-box'></i>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Tarjeta 3 -->
+    <div class="col-md-6 col-xl-3">
+        <div class="kpi-card">
+            <div class="kpi-info">
+                <div class="kpi-label">Facturas</div>
+                <div class="kpi-value">24</div>
+                <div class="kpi-sublabel">Esta semana</div>
+            </div>
+            <div class="kpi-icon bg-purple">
+                <i class='bx bx-file'></i>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Tarjeta 4 -->
+    <div class="col-md-6 col-xl-3">
+        <div class="kpi-card">
+            <div class="kpi-info">
+                <div class="kpi-label">Caja</div>
+                <div class="kpi-value">$5,200.00</div>
+                <div class="kpi-sublabel">Saldo esperado</div>
+            </div>
+            <div class="kpi-icon bg-orange">
+                <i class='bx bx-dollar'></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Fila 2: Detalles -->
+<div class="row g-4">
+    <!-- Stock Bajo -->
+    <div class="col-md-4">
+        <div class="detail-section">
+            <div class="detail-title">
+                <i class='bx bx-error-circle'></i> Stock Bajo
+            </div>
+            <div class="stock-alert">
+                <p>5 productos requieren reorden</p>
+                <a href="#">Ver detalles &rarr;</a>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Actividad Reciente -->
+    <div class="col-md-4">
+        <div class="detail-section">
+            <div class="detail-title">Actividad Reciente</div>
+            <ul class="activity-list">
+                <li class="activity-item">
+                    <span class="activity-label">Venta #V001234</span>
+                    <span class="activity-value">$450.00</span>
+                </li>
+                <li class="activity-item">
+                    <span class="activity-label">Ajuste inventario</span>
+                    <span class="activity-value">-5 unidades</span>
+                </li>
+                <li class="activity-item">
+                    <span class="activity-label">Caja abierta</span>
+                    <span class="activity-value">Activa</span>
+                </li>
+            </ul>
+        </div>
+    </div>
+    
+    <!-- Accesos Rápidos -->
+    <div class="col-md-4">
+        <div class="detail-section">
+            <div class="detail-title">Accesos Rápidos</div>
+            <div class="quick-access-buttons">
+                <a href="#" class="quick-access-btn btn-primary-custom">Ir a POS</a>
+                <a href="#" class="quick-access-btn btn-secondary-custom">Inventario</a>
+            </div>
+        </div>
+    </div>
+</div>
