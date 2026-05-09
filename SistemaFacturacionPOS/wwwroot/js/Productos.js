@@ -29,8 +29,8 @@ var dtProductos;
 var dtCategorias;
 
 function cargarProductos() {
-    if (dtProductos) {
-        dtProductos.ajax.reload();
+    if ($.fn.DataTable.isDataTable('#tblProductos')) {
+        $('#tblProductos').DataTable().ajax.reload();
         return;
     }
 
@@ -38,6 +38,7 @@ function cargarProductos() {
     cargarSelectCategorias();
 
     dtProductos = $('#tblProductos').DataTable({
+        destroy: true,
         language: { url: '/datatables/i18n/es-ES.json' },
         ajax: {
             url: '/Productos/GetProductos',
@@ -220,12 +221,13 @@ function guardarAjusteStock() {
 
 // Categorias CRUD
 function cargarCategorias() {
-    if (dtCategorias) {
-        dtCategorias.ajax.reload();
+    if ($.fn.DataTable.isDataTable('#tblCategorias')) {
+        $('#tblCategorias').DataTable().ajax.reload();
         return;
     }
 
     dtCategorias = $('#tblCategorias').DataTable({
+        destroy: true,
         language: { url: '/datatables/i18n/es-ES.json' },
         ajax: {
             url: '/Categorias/GetCategorias',

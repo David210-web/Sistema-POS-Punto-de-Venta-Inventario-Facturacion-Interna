@@ -1,0 +1,176 @@
+<div class="container-fluid px-4 py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 mb-0 fw-bold text-dark">Punto de Venta</h1>
+            <p class="text-muted">Vender productos rápidamente</p>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Panel Izquierdo: Buscador -->
+        <div class="col-lg-6 mb-4">
+            <div class="card shadow-sm border-0 rounded-3 h-100">
+                <div class="card-body p-4">
+                    <h5 class="fw-bold mb-3 text-dark">Buscar Productos</h5>
+                    <div class="input-group mb-3">
+                        <span class="input-group-text bg-white border-end-0 text-muted"><i class='bx bx-search'></i></span>
+                        <input type="text" class="form-control border-start-0 ps-0" id="posSearchInput" placeholder="Buscar producto por nombre o código de barras...">
+                    </div>
+                    
+                    <div class="d-flex gap-2 mb-3">
+                        <span class="badge bg-primary px-3 py-2">Nombre</span>
+                        <span class="badge bg-light text-dark border px-3 py-2"><i class='bx bx-barcode-reader'></i> Código Barras</span>
+                    </div>
+
+                    <div id="searchResults" class="mt-4" style="max-height: 500px; overflow-y: auto;">
+                        <p class="text-muted text-center mt-5" id="searchPlaceholder">Escribe al menos 3 letras o escanea un código.</p>
+                        <!-- Los resultados se llenan con JS -->
+                        <div class="list-group list-group-flush" id="searchList"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Panel Derecho: Carrito y Pago -->
+        <div class="col-lg-6">
+            <!-- Carrito -->
+            <div class="card shadow-sm border-0 rounded-3 mb-4">
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="fw-bold mb-0 text-primary"><i class='bx bx-cart'></i> Carrito de Venta</h5>
+                        <span class="text-muted" id="cartItemCount" style="font-size: 14px;">0 productos</span>
+                    </div>
+                    
+                    <div class="table-responsive" style="min-height: 200px; max-height: 300px; overflow-y: auto;">
+                        <table class="table table-hover align-middle" id="cartTable">
+                            <tbody id="cartTableBody">
+                                <tr>
+                                    <td colspan="4" class="text-center text-muted py-5">El carrito está vacío</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="mt-3 border-top pt-3">
+                        <div class="d-flex justify-content-between mb-2 text-muted" style="font-size: 14px;">
+                            <span>Subtotal:</span>
+                            <span id="cartSubtotal">$0.00</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2 text-muted" style="font-size: 14px;">
+                            <span>Impuesto (0%):</span>
+                            <span>$0.00</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-3 fw-bold text-dark fs-5">
+                            <span>Total:</span>
+                            <span id="cartTotal">$0.00</span>
+                        </div>
+                        
+                        <button class="btn btn-light w-100 border text-muted fw-semibold" id="btnVaciarCarrito">
+                            <i class='bx bx-trash'></i> Vaciar Carrito
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pago -->
+            <div class="card shadow-sm border-0 rounded-3 bg-primary bg-opacity-10 mb-4" id="pagoCard" style="display: none;">
+                <div class="card-body p-4">
+                    <p class="text-primary mb-1 fw-semibold" style="font-size: 13px;">TOTAL A PAGAR</p>
+                    <h2 class="fw-bold text-primary mb-1" id="pagoTotal">$0.00</h2>
+                    <p class="text-primary opacity-75 mb-4" id="pagoItemCount" style="font-size: 14px;">0 productos</p>
+
+                    <h6 class="fw-semibold text-dark mb-3">Método de Pago</h6>
+                    
+                    <div class="row mb-4">
+                        <div class="col-6">
+                            <input type="radio" class="btn-check" name="metodoPago" id="pagoEfectivo" autocomplete="off" value="Efectivo" checked>
+                            <label class="btn btn-outline-primary w-100 py-3" for="pagoEfectivo">
+                                <i class='bx bx-dollar fs-4 d-block mb-1'></i> Efectivo
+                            </label>
+                        </div>
+                        <div class="col-6">
+                            <input type="radio" class="btn-check" name="metodoPago" id="pagoTarjeta" autocomplete="off" value="Tarjeta">
+                            <label class="btn btn-outline-secondary w-100 py-3" for="pagoTarjeta">
+                                <i class='bx bx-credit-card fs-4 d-block mb-1'></i> Tarjeta
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Efectivo Section -->
+                    <div id="sectionEfectivo">
+                        <div class="mb-3">
+                            <label class="form-label text-dark fw-semibold" style="font-size: 14px;">Dinero Recibido</label>
+                            <input type="number" class="form-control form-control-lg border-2 text-dark fw-bold" id="dineroRecibido" placeholder="Ej. 500" min="0" step="0.01">
+                        </div>
+                        <div class="mb-4">
+                            <label class="form-label text-dark fw-semibold" style="font-size: 14px;">Cambio</label>
+                            <input type="text" class="form-control form-control-lg border-0 bg-white text-dark fw-bold" id="cambioCalculado" value="$0.00" readonly>
+                        </div>
+                    </div>
+
+                    <!-- Tarjeta Section -->
+                    <div id="sectionTarjeta" style="display: none;">
+                        <div class="mb-4">
+                            <label class="form-label text-dark fw-semibold" style="font-size: 14px;">Últimos 4 dígitos</label>
+                            <input type="text" class="form-control form-control-lg border-2 text-dark fw-bold" id="digitosTarjeta" placeholder="Ej. 1234" maxlength="4">
+                        </div>
+                    </div>
+
+                    <button class="btn btn-primary btn-lg w-100 fw-bold shadow-sm" id="btnFinalizarVenta" disabled>Finalizar Venta</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Estilos personalizados para el POS */
+    .product-search-item {
+        transition: all 0.2s ease;
+        cursor: pointer;
+        border: 1px solid transparent;
+        border-bottom: 1px solid #f1f5f9;
+    }
+    .product-search-item:hover {
+        background-color: #f8fafc;
+        border-color: #3b82f6;
+        border-radius: 0.5rem;
+    }
+    
+    .cart-qty-btn {
+        width: 30px;
+        height: 30px;
+        padding: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 4px;
+        border: 1px solid #e2e8f0;
+        background: transparent;
+    }
+    
+    .cart-qty-btn:hover {
+        background: rgba(0,0,0,0.05);
+    }
+    
+    .cart-qty-input {
+        width: 40px;
+        text-align: center;
+        border: none;
+        background: transparent;
+        font-weight: 600;
+    }
+    
+    /* Custom radio buttons styles (already handled by bootstrap btn-check, just minor tweaks) */
+    .btn-check:checked + .btn-outline-primary {
+        background-color: #eff6ff;
+        border-color: #3b82f6;
+        color: #1d4ed8;
+    }
+    
+    .btn-check:checked + .btn-outline-secondary {
+        background-color: #f8fafc;
+        border-color: #475569;
+        color: #0f172a;
+    }
+</style>

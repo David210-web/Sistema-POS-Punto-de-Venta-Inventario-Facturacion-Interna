@@ -12,8 +12,7 @@ builder.Services.AddControllersWithViews()
     });
 
 builder.Services.AddDbContext<SistemaFacturacionPOSContext>(options =>
-    options.UseSqlServer("Server=localhost\\SQLEXPRESS;Database=SistemaPOS;Trusted_Connection=True;TrustServerCertificate=True;"));
-
+    options.UseSqlServer("Server=localhost;Database=SistemaPOS;User Id=sa;Password=FCb@rcelona2002;TrustServerCertificate=True;"));
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
     {
