@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using SistemaFacturacionPOS.Models;
+using SistemaFacturacionPOS.Models.ViewModels;
 
 namespace SistemaFacturacionPOS.Contexto
 {
@@ -21,9 +22,27 @@ namespace SistemaFacturacionPOS.Contexto
         public virtual DbSet<InventarioMovimiento> InventarioMovimientos { get; set; }
         public virtual DbSet<AuditoriaLog> AuditoriaLogs { get; set; }
         public virtual DbSet<VistaAlertasStock> VistaAlertasStocks { get; set; }
+        public virtual DbSet<VentaAnulacionSolicitud> VentaAnulacionSolicitudes { get; set; }
+        public virtual DbSet<NotaCredito> NotasCredito { get; set; }
+        public virtual DbSet<VistaLogs> VistaLogs { get; set; }
+        public virtual DbSet<Bodega> Bodegas { get; set; }
+        public virtual DbSet<ProductoBodega> ProductoBodegas { get; set; }
+        public DbSet<VistaProductosBodegas> VistaProductosBodegas { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.Entity<VistaLogs>(entity =>
+            {
+                entity.HasNoKey();
+                entity.ToView("vista_logs");
+            });
+
+            modelBuilder.Entity<VistaProductosBodegas>(entity =>
+            {
+                entity.HasNoKey();
+                entity.ToView("vista_productos_bodegas");
+            });
+
             modelBuilder.Entity<Rol>(entity =>
             {
                 entity.ToTable("roles");
@@ -195,6 +214,83 @@ namespace SistemaFacturacionPOS.Contexto
                 entity.Property(e => e.Nombre).HasMaxLength(255).IsUnicode(false).HasColumnName("nombre");
                 entity.Property(e => e.StockActual).HasColumnName("stock_actual");
                 entity.Property(e => e.StockMinimo).HasColumnName("stock_minimo");
+            });
+
+            modelBuilder.Entity<VentaAnulacionSolicitud>(entity =>
+            {
+                entity.ToTable("venta_anulacion_solicitudes");
+                entity.Property(e => e.Id).HasColumnName("id").HasDefaultValueSql("(newid())");
+                entity.Property(e => e.VentaId).HasColumnName("venta_id");
+                entity.Property(e => e.UsuarioSolicitaId).HasColumnName("usuario_solicita_id");
+                entity.Property(e => e.Motivo).IsRequired().HasMaxLength(500).IsUnicode(false).HasColumnName("motivo");
+                entity.Property(e => e.Estado).IsRequired().HasMaxLength(20).IsUnicode(false).HasColumnName("estado").HasDefaultValueSql("('PENDIENTE')");
+                entity.Property(e => e.UsuarioResuelveId).HasColumnName("usuario_resuelve_id");
+                entity.Property(e => e.MotivoRechazo).HasMaxLength(500).IsUnicode(false).HasColumnName("motivo_rechazo");
+                entity.Property(e => e.CreatedAt).HasColumnName("created_at").HasDefaultValueSql("(sysdatetimeoffset())");
+                entity.Property(e => e.ResolvedAt).HasColumnName("resolved_at");
+
+                entity.HasOne(d => d.Venta)
+                    .WithMany()
+                    .HasForeignKey(d => d.VentaId)
+                    .HasConstraintName("FK_solicitud_venta");
+
+                entity.HasOne(d => d.UsuarioSolicita)
+                    .WithMany()
+                    .HasForeignKey(d => d.UsuarioSolicitaId)
+                    .HasConstraintName("FK_solicitud_usuario_solicita");
+
+                entity.HasOne(d => d.UsuarioResuelve)
+                    .WithMany()
+                    .HasForeignKey(d => d.UsuarioResuelveId)
+                    .HasConstraintName("FK_solicitud_usuario_resuelve");
+            });
+
+            modelBuilder.Entity<NotaCredito>(entity =>
+            {
+                entity.ToTable("notas_credito");
+                entity.HasIndex(e => e.Folio).IsUnique();
+                entity.Property(e => e.Id).HasColumnName("id").HasDefaultValueSql("(newid())");
+                entity.Property(e => e.VentaId).HasColumnName("venta_id");
+                entity.Property(e => e.Folio).IsRequired().HasMaxLength(50).IsUnicode(false).HasColumnName("folio");
+                entity.Property(e => e.TotalDevuelto).HasColumnType("decimal(12, 2)").HasColumnName("total_devuelto");
+                entity.Property(e => e.CreatedAt).HasColumnName("created_at").HasDefaultValueSql("(sysdatetimeoffset())");
+
+                entity.HasOne(d => d.Venta)
+                    .WithMany()
+                    .HasForeignKey(d => d.VentaId)
+                    .HasConstraintName("FK_nota_credito_venta");
+            });
+
+            modelBuilder.Entity<Bodega>(entity =>
+            {
+                entity.ToTable("bodegas");
+                entity.Property(e => e.Id).HasColumnName("id").HasDefaultValueSql("(newid())");
+                entity.Property(e => e.Nombre).IsRequired().HasMaxLength(150).IsUnicode(false).HasColumnName("nombre");
+                entity.Property(e => e.Descripcion).HasMaxLength(500).IsUnicode(false).HasColumnName("descripcion");
+                entity.Property(e => e.DeletedAt).HasColumnName("deleted_at");
+            });
+
+            modelBuilder.Entity<ProductoBodega>(entity =>
+            {
+                entity.ToTable("producto_bodega");
+                entity.Property(e => e.Id).HasColumnName("id").HasDefaultValueSql("(newid())");
+                entity.Property(e => e.ProductoId).HasColumnName("producto_id");
+                entity.Property(e => e.BodegaId).HasColumnName("bodega_id");
+                entity.Property(e => e.Stock).HasColumnName("stock").HasDefaultValue(0);
+
+                entity.HasIndex(e => new { e.ProductoId, e.BodegaId })
+                    .IsUnique()
+                    .HasDatabaseName("UQ_producto_bodega");
+
+                entity.HasOne(d => d.Producto)
+                    .WithMany(p => p.ProductoBodegas)
+                    .HasForeignKey(d => d.ProductoId)
+                    .HasConstraintName("FK_pb_producto");
+
+                entity.HasOne(d => d.Bodega)
+                    .WithMany(p => p.ProductoBodegas)
+                    .HasForeignKey(d => d.BodegaId)
+                    .HasConstraintName("FK_pb_bodega");
             });
 
             OnModelCreatingPartial(modelBuilder);

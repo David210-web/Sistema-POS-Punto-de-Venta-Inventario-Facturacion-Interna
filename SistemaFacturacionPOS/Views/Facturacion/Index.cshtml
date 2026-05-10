@@ -1,0 +1,165 @@
+@{
+    ViewData["Title"] = "Facturación";
+    var userRole = ViewBag.UserRole as string;
+    bool isAdmin = userRole == "Administrador";
+}
+
+<div class="container-fluid py-4">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h2 class="fw-bold mb-1">Facturación</h2>
+            <p class="text-muted">Historial de ventas y comprobantes</p>
+        </div>
+    </div>
+
+    <div class="card shadow-sm border-0 mb-4 rounded-3">
+        <div class="card-body p-4">
+            <form id="filterForm" class="row g-3 align-items-end">
+                <div class="col-md-4">
+                    <label class="form-label text-muted small fw-bold">Buscar Factura</label>
+                    <input type="text" class="form-control" id="searchFolio" placeholder="# factura o cajero...">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label text-muted small fw-bold">Desde Fecha</label>
+                    <input type="date" class="form-control" id="searchDate">
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-outline-secondary w-100">
+                        <i class="bx bx-filter-alt"></i> Filtrar
+                    </button>
+                </div>
+                <div class="col-md-2">
+                    <button type="button" class="btn btn-light w-100" id="btnLimpiar">
+                        Limpiar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    @if (isAdmin)
+    {
+        <div class="card shadow-sm border-0 mb-4 rounded-3 border-start border-warning border-4" id="solicitudesContainer" style="display:none;">
+            <div class="card-header bg-white py-3">
+                <h5 class="mb-0 text-warning"><i class="bx bx-error-circle"></i> Solicitudes de Anulación Pendientes</h5>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0" id="solicitudesTable">
+                        <thead class="table-light">
+                            <tr>
+                                <th># Factura</th>
+                                <th>Fecha Solicitud</th>
+                                <th>Cajero</th>
+                                <th>Motivo</th>
+                                <th class="text-end">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Dynamic Content -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    }
+
+    <div class="card shadow-sm border-0 rounded-3">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0" id="ventasTable">
+                    <thead class="table-light">
+                        <tr>
+                            <th class="ps-4"># Factura</th>
+                            <th>Fecha</th>
+                            <th>Cajero</th>
+                            <th>Método</th>
+                            <th>Total</th>
+                            <th>Estado</th>
+                            <th class="text-end pe-4">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Dynamic Content -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Solicitar Anulacion (Cajero) -->
+<div class="modal fade" id="modalSolicitarAnulacion" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Solicitar Anulación</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Está a punto de solicitar la anulación de la factura <strong id="lblSolicitarFolio"></strong>.</p>
+                <div class="mb-3">
+                    <label class="form-label">Motivo de la anulación:</label>
+                    <textarea class="form-control" id="txtMotivoSolicitud" rows="3" required></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-danger" id="btnConfirmarSolicitud">Enviar Solicitud</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Anular Directo / Aprobar (Admin) -->
+<div class="modal fade" id="modalAdminAnular" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content border-danger">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title">Autorización Requerida</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p id="lblAdminMensaje">Por favor, ingrese su contraseña de administrador para autorizar la anulación.</p>
+                <div class="mb-3">
+                    <label class="form-label">Contraseña de Administrador:</label>
+                    <input type="password" class="form-control" id="txtAdminPassword" required>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-danger" id="btnConfirmarAdmin">Autorizar Anulación</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Rechazar (Admin) -->
+<div class="modal fade" id="modalRechazar" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Rechazar Solicitud</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label class="form-label">Motivo del rechazo:</label>
+                    <textarea class="form-control" id="txtMotivoRechazo" rows="3" required></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-warning" id="btnConfirmarRechazo">Rechazar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    window.isAdminRole = @isAdmin.ToString().ToLower();
+</script>
+
+@section Scripts {
+    <script src="/js/Facturacion.js"></script>
+}

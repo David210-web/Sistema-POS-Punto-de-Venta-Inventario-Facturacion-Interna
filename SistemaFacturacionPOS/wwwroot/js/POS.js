@@ -10,26 +10,27 @@ $(document).ready(function () {
     };
 
     // 1. Búsqueda de Productos
+    const fetchProducts = (query = '') => {
+        $.ajax({
+            url: '/POS/BuscarProductos',
+            type: 'GET',
+            data: { q: query },
+            success: function (data) {
+                $('#searchPlaceholder').hide();
+                renderSearchResults(data);
+            }
+        });
+    };
+
+    // Carga inicial de productos
+    fetchProducts();
+
     $('#posSearchInput').on('input', function () {
         clearTimeout(searchTimeout);
         const query = $(this).val().trim();
 
-        if (query.length < 3) {
-            $('#searchList').empty();
-            $('#searchPlaceholder').show();
-            return;
-        }
-
         searchTimeout = setTimeout(() => {
-            $.ajax({
-                url: '/POS/BuscarProductos',
-                type: 'GET',
-                data: { q: query },
-                success: function (data) {
-                    $('#searchPlaceholder').hide();
-                    renderSearchResults(data);
-                }
-            });
+            fetchProducts(query);
         }, 300); // Debounce 300ms
     });
 
@@ -45,7 +46,7 @@ $(document).ready(function () {
         products.forEach(p => {
             const isLowStock = p.stockActual <= 5;
             const stockColor = p.stockActual === 0 ? 'text-danger fw-bold' : (isLowStock ? 'text-warning' : 'text-muted');
-            
+
             const item = $(`
                 <div class="list-group-item product-search-item p-3" data-id="${p.id}">
                     <div class="d-flex justify-content-between align-items-center">
@@ -148,7 +149,7 @@ $(document).ready(function () {
         updateTotals();
     }
 
-    window.updateQty = function(index, delta) {
+    window.updateQty = function (index, delta) {
         const item = cart[index];
         const newQty = item.cantidad + delta;
         if (newQty <= 0) {
@@ -163,12 +164,12 @@ $(document).ready(function () {
         renderCart();
     }
 
-    window.removeFromCart = function(index) {
+    window.removeFromCart = function (index) {
         cart.splice(index, 1);
         renderCart();
     }
 
-    $('#btnVaciarCarrito').on('click', function() {
+    $('#btnVaciarCarrito').on('click', function () {
         if (cart.length > 0) {
             Swal.fire({
                 title: '¿Vaciar Carrito?',
@@ -199,7 +200,7 @@ $(document).ready(function () {
         validatePayment();
     }
 
-    $('input[name="metodoPago"]').on('change', function() {
+    $('input[name="metodoPago"]').on('change', function () {
         if (this.value === 'Efectivo') {
             $('#sectionEfectivo').show();
             $('#sectionTarjeta').hide();
@@ -210,11 +211,11 @@ $(document).ready(function () {
         validatePayment();
     });
 
-    $('#dineroRecibido').on('input', function() {
+    $('#dineroRecibido').on('input', function () {
         validatePayment();
     });
 
-    $('#digitosTarjeta').on('input', function() {
+    $('#digitosTarjeta').on('input', function () {
         // Solo permitir numeros
         this.value = this.value.replace(/[^0-9]/g, '');
         validatePayment();
@@ -249,7 +250,7 @@ $(document).ready(function () {
     }
 
     // 4. Finalizar Venta
-    $('#btnFinalizarVenta').on('click', function() {
+    $('#btnFinalizarVenta').on('click', function () {
         const metodo = $('input[name="metodoPago"]:checked').val();
         let reqData = {
             MetodoPago: metodo,
@@ -278,13 +279,13 @@ $(document).ready(function () {
             type: 'POST',
             contentType: 'application/json',
             data: JSON.stringify(reqData),
-            success: function(response) {
+            success: function (response) {
                 // Limpiar todo
                 cart = [];
                 $('#dineroRecibido').val('');
                 $('#digitosTarjeta').val('');
                 renderCart();
-                
+
                 // Mostrar éxito
                 Swal.fire({
                     icon: 'success',
@@ -297,7 +298,7 @@ $(document).ready(function () {
                     window.open('/POS/Ticket/' + response.ventaId, '_blank');
                 });
             },
-            error: function(xhr) {
+            error: function (xhr) {
                 Swal.fire('Error', xhr.responseText || 'Error al procesar la venta.', 'error');
                 validatePayment(); // reactivar boton si es valido
                 btn.html('Finalizar Venta');

@@ -17,5 +17,6 @@ namespace SistemaFacturacionPOS.Models
         public virtual Categoria Categoria { get; set; }
         public virtual ICollection<VentaDetalle> VentaDetalles { get; set; } = new List<VentaDetalle>();
         public virtual ICollection<InventarioMovimiento> InventarioMovimientos { get; set; } = new List<InventarioMovimiento>();
+        public virtual ICollection<ProductoBodega> ProductoBodegas { get; set; } = new List<ProductoBodega>();
     }
 }

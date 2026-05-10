@@ -70,6 +70,14 @@
                         <span>Caja</span>
                     </a>
                 </div>
+                <div class="nav-item">
+                    <a href="javascript:void(0)" 
+                       data-url="@Url.Action("Index", "Facturacion")" 
+                       class="nav-link ajax-link" data-script="/js/Facturacion.js">
+                        <i class='bx bx-file'></i>
+                        <span>Facturación</span>
+                    </a>
+                </div>
                 @if (User.IsInRole("Administrador"))
                 {
                     <div class="nav-item">
@@ -78,24 +86,31 @@
                             <span>Inventario</span>
                         </a>
                     </div>
+
                     <div class="nav-item">
-                        <a href="#" class="nav-link">
-                            <i class='bx bx-file'></i>
-                            <span>Facturación</span>
+                        <a href="javascript:void(0)"
+                           data-url="@Url.Action("Index", "Bodegas")"
+                           class="nav-link ajax-link"
+                           data-script="/js/Bodegas.js">
+                            <i class='bx bx-buildings'></i>
+                            <span>Bodegas</span>
                         </a>
                     </div>
+
                     <div class="nav-item">
-                        <a href="#" class="nav-link">
+                        <a href="javascript:void(0)" 
+                           data-url="@Url.Action("Index", "Logs")" 
+                           class="nav-link ajax-link" data-script="/js/Logs.js">
                             <i class='bx bx-list-check'></i>
                             <span>Auditoría</span>
                         </a>
                     </div>
-                    <div class="nav-item">
+                    /*<div class="nav-item">
                         <a href="#" class="nav-link">
                             <i class='bx bx-bar-chart-alt-2'></i>
                             <span>Reportes</span>
                         </a>
-                    </div>
+                    </div>*/
                     <div class="nav-item">
                         <a href="javascript:void(0)" 
                            data-url="@Url.Action("Index", "Usuario")" 

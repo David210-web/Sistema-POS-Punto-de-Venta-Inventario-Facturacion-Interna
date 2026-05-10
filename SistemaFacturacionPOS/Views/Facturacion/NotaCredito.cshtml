@@ -1,0 +1,129 @@
+@model SistemaFacturacionPOS.Models.NotaCredito
+@{
+    Layout = null; // No layout for printable ticket
+}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nota de Crédito @Model.Folio</title>
+    <style>
+        /* Estilos para ticket térmico de 80mm */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Courier New', Courier, monospace;
+        }
+
+        body {
+            width: 80mm;
+            max-width: 80mm;
+            padding: 5mm;
+            margin: 0 auto;
+            background-color: white;
+            color: black;
+            font-size: 12px;
+        }
+
+        .text-center { text-align: center; }
+        .text-right { text-align: right; }
+        .fw-bold { font-weight: bold; }
+        .mt-2 { margin-top: 10px; }
+        .mt-3 { margin-top: 15px; }
+        .mb-2 { margin-bottom: 10px; }
+        .mb-3 { margin-bottom: 15px; }
+        
+        .divider {
+            border-top: 1px dashed black;
+            margin: 5px 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            text-align: left;
+            vertical-align: top;
+            padding: 2px 0;
+        }
+
+        .qty-col { width: 15%; text-align: center; }
+        .desc-col { width: 55%; }
+        .price-col { width: 30%; text-align: right; }
+
+        .total-row {
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        @@media print {
+            body {
+                width: 100%;
+                margin: 0;
+                padding: 0;
+            }
+            @@page {
+                margin: 0;
+            }
+        }
+    </style>
+</head>
+<body onload="window.print()">
+    <div class="text-center mb-3">
+        <h2 class="fw-bold">POS System</h2>
+        <p>Avenida Falsa 123, Ciudad</p>
+        <p>Tel: 555-0123</p>
+    </div>
+
+    <div class="divider"></div>
+    <div class="text-center">
+        <strong style="font-size: 14px;">NOTA DE CRÉDITO</strong>
+    </div>
+    <div class="divider"></div>
+    
+    <p>Folio NC: <strong>@Model.Folio</strong></p>
+    <p>Fecha NC: @Model.CreatedAt?.ToString("dd/MM/yyyy HH:mm")</p>
+    <p>Venta Anulada: <strong>V@Model.Venta.FolioInterno.ToString("D7")</strong></p>
+    <p>Cajero Original: @Model.Venta.Usuario?.Username</p>
+    <div class="divider"></div>
+
+    <p class="text-center mt-2 mb-2"><strong>ARTÍCULOS DEVUELTOS</strong></p>
+    <table class="mt-2 mb-2">
+        <thead>
+            <tr>
+                <th class="qty-col">Cant</th>
+                <th class="desc-col">Descripción</th>
+                <th class="price-col">Monto</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var det in Model.Venta.VentaDetalles)
+            {
+                <tr>
+                    <td class="qty-col">@det.Cantidad</td>
+                    <td class="desc-col">@det.Producto?.Nombre</td>
+                    <td class="price-col">@det.Subtotal?.ToString("C")</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <div class="divider"></div>
+
+    <table class="mt-2 mb-3">
+        <tr class="total-row mt-2">
+            <td>TOTAL DEVUELTO:</td>
+            <td class="text-right">@Model.TotalDevuelto.ToString("C")</td>
+        </tr>
+    </table>
+
+    <div class="divider mt-3"></div>
+    <div class="text-center mt-2">
+        <p>Este documento ampara la devolución de dinero o mercancía al cliente correspondiente a la venta anulada.</p>
+    </div>
+</body>
+</html>

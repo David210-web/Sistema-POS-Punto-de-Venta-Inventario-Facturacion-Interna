@@ -1,3 +1,4 @@
+@model SistemaFacturacionPOS.Models.ViewModels.DashboardViewModel
 @{
     ViewData["Title"] = "Dashboard";
     
@@ -7,111 +8,278 @@
     var formattedDate = today.ToString("dddd, dd 'de' MMMM 'de' yyyy", culture);
 }
 
-<h1 class="page-title">Bienvenido, Admin</h1>
-<p class="page-subtitle">@formattedDate</p>
+<style>
+    /* Premium Dashboard Enhancements */
+    .dashboard-container {
+        animation: fadeIn 0.8s ease-out;
+    }
 
-<!-- Fila 1: Tarjetas de KPI -->
-<div class="row g-4 mb-4">
-    <!-- Tarjeta 1 -->
-    <div class="col-md-6 col-xl-3">
-        <div class="kpi-card">
-            <div class="kpi-info">
-                <div class="kpi-label">Ventas del Día</div>
-                <div class="kpi-value">$2,450.50</div>
-                <div class="kpi-sublabel">12 transacciones</div>
-            </div>
-            <div class="kpi-icon bg-blue">
-                <i class='bx bx-cart-alt'></i>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Tarjeta 2 -->
-    <div class="col-md-6 col-xl-3">
-        <div class="kpi-card">
-            <div class="kpi-info">
-                <div class="kpi-label">Productos</div>
-                <div class="kpi-value">156</div>
-                <div class="kpi-sublabel">5 con stock bajo</div>
-            </div>
-            <div class="kpi-icon bg-green">
-                <i class='bx bx-box'></i>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Tarjeta 3 -->
-    <div class="col-md-6 col-xl-3">
-        <div class="kpi-card">
-            <div class="kpi-info">
-                <div class="kpi-label">Facturas</div>
-                <div class="kpi-value">24</div>
-                <div class="kpi-sublabel">Esta semana</div>
-            </div>
-            <div class="kpi-icon bg-purple">
-                <i class='bx bx-file'></i>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Tarjeta 4 -->
-    <div class="col-md-6 col-xl-3">
-        <div class="kpi-card">
-            <div class="kpi-info">
-                <div class="kpi-label">Caja</div>
-                <div class="kpi-value">$5,200.00</div>
-                <div class="kpi-sublabel">Saldo esperado</div>
-            </div>
-            <div class="kpi-icon bg-orange">
-                <i class='bx bx-dollar'></i>
-            </div>
-        </div>
-    </div>
-</div>
+    @@keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
 
-<!-- Fila 2: Detalles -->
-<div class="row g-4">
-    <!-- Stock Bajo -->
-    <div class="col-md-4">
-        <div class="detail-section">
-            <div class="detail-title">
-                <i class='bx bx-error-circle'></i> Stock Bajo
+    .kpi-card {
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        border: 1px solid rgba(226, 232, 240, 0.8);
+        background: linear-gradient(145deg, #ffffff, #f8fafc);
+        overflow: hidden;
+        position: relative;
+    }
+
+    .kpi-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        border-color: var(--primary-blue);
+    }
+
+    .kpi-card::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 4px;
+        background: transparent;
+        transition: background 0.3s ease;
+    }
+
+    .kpi-card:hover::after {
+        background: var(--primary-blue);
+    }
+
+    .kpi-icon {
+        transition: transform 0.3s ease;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    }
+
+    .kpi-card:hover .kpi-icon {
+        transform: scale(1.1) rotate(5deg);
+    }
+
+    /* Gradients for Icons */
+    .bg-blue-gradient { background: linear-gradient(135deg, #3b82f6, #2563eb); }
+    .bg-green-gradient { background: linear-gradient(135deg, #10b981, #059669); }
+    .bg-purple-gradient { background: linear-gradient(135deg, #8b5cf6, #7c3aed); }
+    .bg-orange-gradient { background: linear-gradient(135deg, #f59e0b, #d97706); }
+
+    .detail-section {
+        background: white;
+        transition: all 0.3s ease;
+    }
+
+    .detail-section:hover {
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
+    }
+
+    .stock-alert-premium {
+        background: #fff1f2;
+        border-left: 4px solid #ef4444;
+        padding: 16px;
+        border-radius: 8px;
+        margin-top: 10px;
+    }
+
+    .activity-item {
+        transition: background 0.2s ease;
+        padding: 12px 8px !important;
+        border-radius: 6px;
+    }
+
+    .activity-item:hover {
+        background: #f8fafc;
+    }
+
+    .quick-access-btn {
+        transition: all 0.2s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .quick-access-btn:active {
+        transform: scale(0.98);
+    }
+
+    /* Dark Mode Adjustments */
+    html.dark-mode .kpi-card {
+        background: linear-gradient(145deg, #1e1e2f, #1a1a27);
+        border-color: #33334d;
+    }
+    
+    html.dark-mode .detail-section {
+        background: #1e1e2f;
+    }
+
+    html.dark-mode .stock-alert-premium {
+        background: rgba(239, 68, 68, 0.1);
+        border-left-color: #ef4444;
+    }
+
+    html.dark-mode .activity-item:hover {
+        background: #2b2b40;
+    }
+</style>
+
+<div class="dashboard-container">
+    <div class="d-flex justify-content-between align-items-end mb-4">
+        <div>
+            <h1 class="page-title">Panel de Control</h1>
+            <p class="page-subtitle mb-0"><i class='bx bx-calendar-event me-1'></i> @formattedDate</p>
+        </div>
+        <div class="text-end d-none d-md-block">
+            <span class="badge bg-primary bg-opacity-10 text-primary px-3 py-2 rounded-pill">
+                <i class='bx bxs-user-check me-1'></i> Sesión: @(User.Identity.Name ?? "Usuario")
+            </span>
+        </div>
+    </div>
+
+    <!-- Fila 1: Tarjetas de KPI -->
+    <div class="row g-4 mb-4">
+        <!-- Ventas del Día -->
+        <div class="col-md-6 col-xl-3">
+            <div class="kpi-card">
+                <div class="kpi-info">
+                    <div class="kpi-label">Ventas del Día</div>
+                    <div class="kpi-value text-primary">@Model.VentasHoy.ToString("C")</div>
+                    <div class="kpi-sublabel">
+                        <i class='bx bx-trending-up text-success me-1'></i>@Model.TransaccionesHoy transacciones
+                    </div>
+                </div>
+                <div class="kpi-icon bg-blue-gradient">
+                    <i class='bx bx-cart-alt'></i>
+                </div>
             </div>
-            <div class="stock-alert">
-                <p>5 productos requieren reorden</p>
-                <a href="#">Ver detalles &rarr;</a>
+        </div>
+        
+        <!-- Productos Totales -->
+        <div class="col-md-6 col-xl-3">
+            <div class="kpi-card">
+                <div class="kpi-info">
+                    <div class="kpi-label">Productos Totales</div>
+                    <div class="kpi-value">@Model.ProductosTotales</div>
+                    <div class="kpi-sublabel @(Model.ProductosStockBajo > 0 ? "text-danger fw-medium" : "")">
+                        <i class='bx bx-box me-1'></i>@Model.ProductosStockBajo con stock bajo
+                    </div>
+                </div>
+                <div class="kpi-icon bg-green-gradient">
+                    <i class='bx bx-box'></i>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Facturas Emitidas -->
+        <div class="col-md-6 col-xl-3">
+            <div class="kpi-card">
+                <div class="kpi-info">
+                    <div class="kpi-label">Facturas Semanales</div>
+                    <div class="kpi-value">@Model.FacturasSemana</div>
+                    <div class="kpi-sublabel">Emitidas esta semana</div>
+                </div>
+                <div class="kpi-icon bg-purple-gradient">
+                    <i class='bx bx-file'></i>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Saldo de Caja -->
+        <div class="col-md-6 col-xl-3">
+            <div class="kpi-card">
+                <div class="kpi-info">
+                    <div class="kpi-label">Saldo de Caja</div>
+                    <div class="kpi-value text-success">@Model.SaldoCaja.ToString("C")</div>
+                    <div class="kpi-sublabel">Saldo esperado actual</div>
+                </div>
+                <div class="kpi-icon bg-orange-gradient">
+                    <i class='bx bx-dollar'></i>
+                </div>
             </div>
         </div>
     </div>
-    
-    <!-- Actividad Reciente -->
-    <div class="col-md-4">
-        <div class="detail-section">
-            <div class="detail-title">Actividad Reciente</div>
-            <ul class="activity-list">
-                <li class="activity-item">
-                    <span class="activity-label">Venta #V001234</span>
-                    <span class="activity-value">$450.00</span>
-                </li>
-                <li class="activity-item">
-                    <span class="activity-label">Ajuste inventario</span>
-                    <span class="activity-value">-5 unidades</span>
-                </li>
-                <li class="activity-item">
-                    <span class="activity-label">Caja abierta</span>
-                    <span class="activity-value">Activa</span>
-                </li>
-            </ul>
+
+    <!-- Fila 2: Detalles y Acciones -->
+    <div class="row g-4">
+        <!-- Stock Bajo Alerta -->
+        <div class="col-md-4">
+            <div class="detail-section h-100">
+                <div class="detail-title @(Model.ProductosStockBajo > 0 ? "text-danger" : "text-success")">
+                    <i class='bx bxs-bell-ring @(Model.ProductosStockBajo > 0 ? "bx-tada" : "")'></i> Notificaciones de Inventario
+                </div>
+                <div class="stock-alert-premium" style="@(Model.ProductosStockBajo == 0 ? "background: #f0fdf4; border-left-color: #22c55e;" : "")">
+                    @if (Model.ProductosStockBajo > 0)
+                    {
+                        <p class="mb-2 fw-semibold text-dark">Alerta de Reorden</p>
+                        <p class="mb-3 text-muted" style="font-size: 14px;">Hay <strong>@Model.ProductosStockBajo productos</strong> que han alcanzado el stock mínimo de seguridad.</p>
+                        <a href="javascript:void(0)" data-url="@Url.Action("Index", "Productos")" class="btn btn-sm btn-outline-danger w-100 ajax-link">
+                            Ver productos afectados <i class='bx bx-right-arrow-alt'></i>
+                        </a>
+                    }
+                    else
+                    {
+                        <p class="mb-2 fw-semibold text-dark">Inventario Saludable</p>
+                        <p class="mb-3 text-muted" style="font-size: 14px;">Todos los productos tienen niveles de stock por encima del mínimo.</p>
+                        <a href="javascript:void(0)" data-url="@Url.Action("Index", "Productos")" class="btn btn-sm btn-outline-success w-100 ajax-link">
+                            Ir al inventario <i class='bx bx-right-arrow-alt'></i>
+                        </a>
+                    }
+                </div>
+            </div>
         </div>
-    </div>
-    
-    <!-- Accesos Rápidos -->
-    <div class="col-md-4">
-        <div class="detail-section">
-            <div class="detail-title">Accesos Rápidos</div>
-            <div class="quick-access-buttons">
-                <a href="#" class="quick-access-btn btn-primary-custom">Ir a POS</a>
-                <a href="#" class="quick-access-btn btn-secondary-custom">Inventario</a>
+        
+        <!-- Actividad Reciente -->
+        <div class="col-md-4">
+            <div class="detail-section h-100">
+                <div class="detail-title">
+                    <i class='bx bx-history'></i> Actividad Reciente
+                </div>
+                <ul class="activity-list">
+                    @if (Model.Actividades.Any())
+                    {
+                        foreach (var act in Model.Actividades)
+                        {
+                            <li class="activity-item">
+                                <div class="d-flex flex-column">
+                                    <span class="activity-label fw-semibold text-dark">@act.Titulo</span>
+                                    <small class="text-muted">@act.TiempoRelativo</small>
+                                </div>
+                                <span class="activity-value text-muted" style="font-size: 12px;">@act.Valor</span>
+                            </li>
+                        }
+                    }
+                    else
+                    {
+                        <li class="activity-item text-center py-4">
+                            <span class="text-muted">No hay actividad reciente registrada.</span>
+                        </li>
+                    }
+                </ul>
+            </div>
+        </div>
+        
+        <!-- Accesos Rápidos -->
+        <div class="col-md-4">
+            <div class="detail-section h-100">
+                <div class="detail-title">
+                    <i class='bx bx-bolt-circle'></i> Accesos Rápidos
+                </div>
+                <div class="quick-access-buttons mt-3">
+                    <a href="javascript:void(0)" data-url="@Url.Action("Index", "POS")" class="quick-access-btn btn-primary-custom mb-3 py-3 d-flex align-items-center justify-content-center gap-2 ajax-link" data-script="/js/POS.js">
+                        <i class='bx bx-cart-alt fs-4'></i> 
+                        <span>Nueva Venta (POS)</span>
+                    </a>
+                    @if(User.IsInRole("Administrador"))
+                    {
+                        <a href="javascript:void(0)" data-url="@Url.Action("Index", "Productos")" class="quick-access-btn btn-secondary-custom py-3 d-flex align-items-center justify-content-center gap-2 ajax-link" data-script="/js/Productos.js">
+                            <i class='bx bx-box fs-4'></i> 
+                            <span>Gestión de Inventario</span>
+                        </a>
+                    }
+                </div>
+                <div class="mt-4 p-3 bg-light rounded-3 text-center">
+                    <small class="text-muted d-block mb-1">Estado del Sistema:</small>
+                    <span class="text-success fw-bold" style="font-size: 13px;">
+                        <i class='bx bx-check-shield me-1'></i> En línea y seguro
+                    </span>
+                </div>
             </div>
         </div>
     </div>

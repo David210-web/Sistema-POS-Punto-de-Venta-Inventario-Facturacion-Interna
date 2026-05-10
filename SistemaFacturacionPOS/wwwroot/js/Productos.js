@@ -74,6 +74,17 @@ function cargarProductos() {
                 }
             },
             {
+                // Columna: Ver Existencias
+                data: 'id',
+                orderable: false,
+                render: function (data, type, row) {
+                    return `<button class="btn btn-sm btn-outline-primary" onclick="verExistencias('${data}', '${row.nombre.replace(/'/g, "\\'")}')"
+                                    title="Ver existencias por bodega">
+                                <i class="bx bx-buildings me-1"></i> Ver Existencias
+                            </button>`;
+                }
+            },
+            {
                 data: 'id',
                 render: function (data, type, row) {
                     return `
@@ -309,4 +320,145 @@ function eliminarCategoria(id) {
             }
         });
     });
+}
+
+// ============================================================
+// EXISTENCIAS POR BODEGA
+// ============================================================
+
+// Abre el modal y carga las existencias del producto
+function verExistencias(productoId, nombreProducto) {
+    $('#txtIdProductoExistencias').val(productoId);
+    $('#lblNombreProductoExistencias').text(nombreProducto);
+    $('#txtIdExistenciaEditar').val('');
+    $('#txtStockExistencia').val('');
+    $('#cbBodegaExistencia').val('');
+
+    cargarSelectBodegas();
+    cargarTablaExistencias(productoId);
+    $('#modalExistencias').modal('show');
+}
+
+// Carga el <select> de bodegas disponibles
+function cargarSelectBodegas() {
+    $.get('/Bodegas/GetBodegas', function (data) {
+        let cb = $('#cbBodegaExistencia');
+        cb.empty().append('<option value="">Seleccione bodega</option>');
+        data.forEach(function (b) {
+            cb.append(`<option value="${b.id}">${b.nombre}</option>`);
+        });
+    });
+}
+
+// Carga la tabla de existencias dentro del modal
+function cargarTablaExistencias(productoId) {
+    $.ajax({
+        url: `/ProductoBodega/GetExistencias/${productoId}`,
+        type: 'GET',
+        success: function (data) {
+            let tbody = $('#bodyExistencias');
+            tbody.empty();
+
+            if (data.length === 0) {
+                tbody.append('<tr><td colspan="3" class="text-center text-muted">Sin existencias registradas.</td></tr>');
+                return;
+            }
+
+            data.forEach(function (e) {
+                tbody.append(`
+                <tr>
+                    <td>${e.bodegaNombre}</td>
+                    <td><span class="badge bg-primary">${e.stock}</span></td>
+                    <td class="text-end">
+                        <button class="btn btn-sm btn-warning me-1"
+                                onclick="editarExistencia('${e.id}', '${e.bodegaId}', ${e.stock})"
+                                title="Editar stock">
+                            <i class="bx bx-edit-alt"></i>
+                        </button>
+                        <button class="btn btn-sm btn-danger"
+                                onclick="eliminarExistencia('${e.id}')"
+                                title="Eliminar existencia">
+                            <i class="bx bx-trash"></i>
+                        </button>
+                    </td>
+                </tr>
+            `);
+            });
+        },
+        error: function (err) {
+            console.log(err);
+        }
+    });
+}
+
+// Prepara el formulario para editar una existencia existente
+function editarExistencia(id, bodegaId, stock) {
+    $('#txtIdExistenciaEditar').val(id);
+    $('#cbBodegaExistencia').val(bodegaId);
+    $('#txtStockExistencia').val(stock);
+}
+
+// Guarda: POST si es nueva, PUT si está editando
+function guardarExistencia() {
+    let productoId = $('#txtIdProductoExistencias').val();
+    let bodegaId = $('#cbBodegaExistencia').val();
+    let stock = parseInt($('#txtStockExistencia').val());
+    let editId = $('#txtIdExistenciaEditar').val();
+
+    if (!bodegaId) {
+        sweetAlertUtils.showError('Seleccione una bodega.');
+        return;
+    }
+    if (isNaN(stock) || stock < 0) {
+        sweetAlertUtils.showError('El stock debe ser un número mayor o igual a 0.');
+        return;
+    }
+
+    let url = editId ? `/ProductoBodega/ActualizarExistencia/${editId}` : '/ProductoBodega/AgregarExistencia';
+    let type = editId ? 'PUT' : 'POST';
+    let body = { productoId: productoId, bodegaId: bodegaId, stock: stock };
+
+    sweetAlertUtils.loaderAlert('Guardando existencia...');
+    $.ajax({
+        url: url,
+        type: type,
+        contentType: 'application/json',
+        data: JSON.stringify(body),
+        success: function (res) {
+            sweetAlertUtils.showSuccess(res);
+            $('#txtIdExistenciaEditar').val('');
+            $('#cbBodegaExistencia').val('');
+            $('#txtStockExistencia').val('');
+            cargarTablaExistencias(productoId);
+            // Refrescar stock total en la tabla de productos
+            dtProductos.ajax.reload(null, false);
+        },
+        error: function (err) {
+            sweetAlertUtils.showError(err.responseText || 'Error al guardar la existencia.');
+        }
+    });
+}
+
+// Elimina la relación producto-bodega
+function eliminarExistencia(id) {
+    sweetAlertUtils.showConfirm(
+        '¿Eliminar existencia?',
+        'Se quitará el stock de esa bodega y se recalculará el total.',
+        function () {
+            let productoId = $('#txtIdProductoExistencias').val();
+            sweetAlertUtils.loaderAlert('Eliminando...');
+            $.ajax({
+                url: `/ProductoBodega/EliminarExistencia/${id}`,
+                type: 'DELETE',
+                success: function (res) {
+                    sweetAlertUtils.showSuccess(res);
+                    cargarTablaExistencias(productoId);
+                    dtProductos.ajax.reload(null, false);
+                },
+                error: function (err) {
+                    sweetAlertUtils.showError(err.responseText || 'Error al eliminar la existencia.');
+                }
+            });
+        }
+    );
 }

@@ -16,6 +16,16 @@ $(document).ready(function () {
 
         let monto = parseFloat($('#montoInicial').val());
 
+        if (monto <= 0 || isNaN(monto)) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Atención',
+                text: 'El monto inicial debe ser mayor a 0.',
+                confirmButtonColor: '#0d6efd'
+            });
+            return;
+        }
+
         $.ajax({
             url: '/Caja/AbrirCaja',
             type: 'POST',

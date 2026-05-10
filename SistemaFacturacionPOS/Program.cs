@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
 using SistemaFacturacionPOS.Contexto;
+using SistemaFacturacionPOS.Services;
+using SistemaFacturacionPOS.Interceptors;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,8 +13,15 @@ builder.Services.AddControllersWithViews()
         options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
     });
 
-builder.Services.AddDbContext<SistemaFacturacionPOSContext>(options =>
-    options.UseSqlServer("Server=localhost;Database=SistemaPOS;User Id=sa;Password=FCb@rcelona2002;TrustServerCertificate=True;"));
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<IAuditService, AuditService>();
+builder.Services.AddScoped<AuditInterceptor>();
+
+builder.Services.AddDbContext<SistemaFacturacionPOSContext>((serviceProvider, options) =>
+{
+    options.UseSqlServer("Server=localhost;Database=SistemaPOS;User Id=sa;Password=FCb@rcelona2002;TrustServerCertificate=True;");
+    options.AddInterceptors(serviceProvider.GetRequiredService<AuditInterceptor>());
+});
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
     {

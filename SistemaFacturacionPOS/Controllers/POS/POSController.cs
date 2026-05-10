@@ -52,16 +52,15 @@ namespace SistemaFacturacionPOS.Controllers.POS
         [HttpGet]
         public async Task<IActionResult> BuscarProductos(string q)
         {
-            if (string.IsNullOrWhiteSpace(q) || q.Length < 3)
+            var queryBase = _context.Productos.Where(p => p.DeletedAt == null);
+
+            if (!string.IsNullOrWhiteSpace(q))
             {
-                return Json(new object[] { });
+                var query = q.ToLower();
+                queryBase = queryBase.Where(p => p.Nombre.ToLower().Contains(query) || p.CodigoBarras == q);
             }
 
-            var query = q.ToLower();
-
-            var productos = await _context.Productos
-                .Where(p => p.DeletedAt == null && 
-                            (p.Nombre.ToLower().Contains(query) || p.CodigoBarras == q))
+            var productos = await queryBase
                 .Select(p => new
                 {
                     p.Id,
@@ -70,7 +69,8 @@ namespace SistemaFacturacionPOS.Controllers.POS
                     p.PrecioUnitario,
                     p.StockActual
                 })
-                .Take(15)
+                .OrderBy(p => p.Nombre)
+                .Take(20)
                 .ToListAsync();
 
             return Json(productos);

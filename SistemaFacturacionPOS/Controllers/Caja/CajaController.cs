@@ -85,6 +85,11 @@ namespace SistemaFacturacionPOS.Controllers.Caja
                     return Unauthorized();
                 }
 
+                if (request.MontoInicial <= 0)
+                {
+                    return BadRequest("El monto inicial debe ser mayor a 0.");
+                }
+
                 // Verificar si ya hay una caja abierta
                 var existeSesion = await _context.CajaSesiones
                     .AnyAsync(c => c.UsuarioId == userId && c.Estado == true);

@@ -1,0 +1,65 @@
+<div class="page-header mb-4">
+    <div class="row align-items-center">
+        <div class="col">
+            <h1 class="page-title">Bodegas</h1>
+            <p class="page-subtitle">Administra las bodegas o ubicaciones de almacenamiento.</p>
+        </div>
+        <div class="col-auto">
+            <button class="btn btn-primary-custom px-4" data-bs-toggle="modal" data-bs-target="#modalBodega">
+                <i class="bx bx-plus me-1"></i> Agregar Bodega
+            </button>
+        </div>
+    </div>
+</div>
+
+<div class="content-card">
+    <div class="table-responsive">
+        <table class="table table-hover w-100" id="tblBodegas">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Nombre</th>
+                    <th>Descripción</th>
+                    <th class="text-end">Acciones</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Modal Agregar / Editar Bodega -->
+<div class="modal fade" id="modalBodega" tabindex="-1" aria-labelledby="modalBodegaLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalBodegaLabel">Agregar Bodega</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="txtIdBodega" value="">
+                <div class="mb-3">
+                    <label for="txtNombreBodega" class="form-label">Nombre: <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control" id="txtNombreBodega" placeholder="Ej: Central, Tienda, Bodega 2">
+                </div>
+                <div class="mb-3">
+                    <label for="txtDescripcionBodega" class="form-label">Descripción (opcional):</label>
+                    <textarea class="form-control" id="txtDescripcionBodega" rows="3"
+                              placeholder="Descripción breve de la bodega"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    Cerrar <i class="bx bx-exit"></i>
+                </button>
+                <button type="button" class="btn btn-primary" onclick="guardarBodega()">
+                    Guardar <i class="bx bx-save"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="/js/Bodegas.js"></script>
+}
