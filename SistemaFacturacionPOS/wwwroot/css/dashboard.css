@@ -542,3 +542,29 @@ html.dark-mode .input-group-text {
     color: var(--text-secondary);
 }
 
+/* Espaciado y alineación para todos los botones de navegación de DataTables */
+.dataTables_paginate .pagination .page-item > a,
+.dataTables_paginate .pagination .paginate_button > a,
+.paginate_button.previous > a, 
+.paginate_button.next > a,
+#tblCategorias_previous > a, 
+#tblCategorias_next > a,
+#tblBodegas_paginate > ul > li.paginate_button.active > a {
+    margin-right: 5px !important;
+    margin-left: 5px !important;
+    padding: 5px 15px !important;
+    border-radius: 6px !important;
+    display: inline-block !important;
+    vertical-align: middle !important;
+}
+
+/* Margen extra para los botones de anterior/siguiente para resaltarlos */
+.paginate_button.previous > a, 
+.paginate_button.next > a,
+#tblCategorias_previous > a, 
+#tblCategorias_next > a {
+    margin-right: 10px !important;
+    margin-left: 10px !important;
+}
+
+

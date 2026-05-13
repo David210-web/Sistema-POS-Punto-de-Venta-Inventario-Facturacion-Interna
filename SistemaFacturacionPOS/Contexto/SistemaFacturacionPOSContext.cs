@@ -28,6 +28,7 @@ namespace SistemaFacturacionPOS.Contexto
         public virtual DbSet<Bodega> Bodegas { get; set; }
         public virtual DbSet<ProductoBodega> ProductoBodegas { get; set; }
         public DbSet<VistaProductosBodegas> VistaProductosBodegas { get; set; }
+        public virtual DbSet<Empresa> Empresa { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -48,7 +49,7 @@ namespace SistemaFacturacionPOS.Contexto
                 entity.ToTable("roles");
                 entity.HasIndex(e => e.Nombre).IsUnique();
                 entity.Property(e => e.Id).HasColumnName("id").HasDefaultValueSql("(newid())");
-                entity.Property(e => e.Nombre).IsRequired().HasMaxLength(50).IsUnicode(false).HasColumnName("nombre");
+                entity.Property(e => e.Nombre).HasMaxLength(50).IsUnicode(false).HasColumnName("nombre");
                 entity.Property(e => e.Descripcion).HasColumnName("descripcion");
             });
 
@@ -58,6 +59,8 @@ namespace SistemaFacturacionPOS.Contexto
                 entity.HasIndex(e => e.Username).IsUnique();
                 entity.Property(e => e.Id).HasColumnName("id").HasDefaultValueSql("(newid())");
                 entity.Property(e => e.Username).IsRequired().HasMaxLength(50).IsUnicode(false).HasColumnName("username");
+                entity.Property(e => e.Nombre).HasMaxLength(100).IsUnicode(false).HasColumnName("nombre");
+                entity.Property(e => e.Apellido).HasMaxLength(100).IsUnicode(false).HasColumnName("apellido");
                 entity.Property(e => e.PasswordHash).IsRequired().HasColumnName("password_hash");
                 entity.Property(e => e.RolId).HasColumnName("rol_id");
                 entity.Property(e => e.Activo).HasColumnName("activo").HasDefaultValue(true);
@@ -291,6 +294,15 @@ namespace SistemaFacturacionPOS.Contexto
                     .WithMany(p => p.ProductoBodegas)
                     .HasForeignKey(d => d.BodegaId)
                     .HasConstraintName("FK_pb_bodega");
+            });
+
+            modelBuilder.Entity<Empresa>(entity =>
+            {
+                entity.ToTable("empresa");
+                entity.Property(e => e.Id).HasColumnName("id").HasDefaultValueSql("(newid())");
+                entity.Property(e => e.Nombre).HasMaxLength(200).IsUnicode(false).HasColumnName("nombre");
+                entity.Property(e => e.Nit).HasMaxLength(50).IsUnicode(false).HasColumnName("nit");
+                entity.Property(e => e.Direccion).HasMaxLength(500).IsUnicode(false).HasColumnName("direccion");
             });
 
             OnModelCreatingPartial(modelBuilder);

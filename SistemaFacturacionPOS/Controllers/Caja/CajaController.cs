@@ -90,6 +90,11 @@ namespace SistemaFacturacionPOS.Controllers.Caja
                     return BadRequest("El monto inicial debe ser mayor a 0.");
                 }
 
+                if (request.MontoInicial > 9999999999.99m)
+                {
+                    return BadRequest("El monto inicial excede el límite permitido por el sistema.");
+                }
+
                 // Verificar si ya hay una caja abierta
                 var existeSesion = await _context.CajaSesiones
                     .AnyAsync(c => c.UsuarioId == userId && c.Estado == true);
@@ -114,7 +119,8 @@ namespace SistemaFacturacionPOS.Controllers.Caja
             }
             catch (Exception ex)
             {
-                return StatusCode(500, $"Error al abrir la caja: {ex.Message}");
+                var message = ex.InnerException != null ? ex.InnerException.Message : ex.Message;
+                return StatusCode(500, $"Error al abrir la caja: {message}");
             }
         }
         [HttpPost]
@@ -140,6 +146,11 @@ namespace SistemaFacturacionPOS.Controllers.Caja
 
                 var ventasDelDia = sesionActiva.Ventas.Where(v => v.Estado == "COMPLETADA").Sum(v => v.TotalFinal);
                 
+                if (request.MontoFisico > 9999999999.99m)
+                {
+                    return BadRequest("El monto físico excede el límite permitido por el sistema.");
+                }
+
                 sesionActiva.MontoCierreSistema = sesionActiva.MontoApertura + ventasDelDia;
                 sesionActiva.MontoCierreFisico = request.MontoFisico;
                 // Diferencia is a computed column in the DB, so we don't set it explicitly unless EF requires it,
@@ -154,7 +165,8 @@ namespace SistemaFacturacionPOS.Controllers.Caja
             }
             catch (Exception ex)
             {
-                return StatusCode(500, $"Error al cerrar la caja: {ex.Message}");
+                var message = ex.InnerException != null ? ex.InnerException.Message : ex.Message;
+                return StatusCode(500, $"Error al cerrar la caja: {message}");
             }
         }
     }

@@ -19,7 +19,7 @@ builder.Services.AddScoped<AuditInterceptor>();
 
 builder.Services.AddDbContext<SistemaFacturacionPOSContext>((serviceProvider, options) =>
 {
-    options.UseSqlServer("Server=localhost;Database=SistemaPOS;User Id=sa;Password=FCb@rcelona2002;TrustServerCertificate=True;");
+    options.UseSqlServer("Server=DESKTOP-ECF04TK\\SQLHRNDZ;Database=SistemaPOS;Integrated Security=True;TrustServerCertificate=True;");
     options.AddInterceptors(serviceProvider.GetRequiredService<AuditInterceptor>());
 });
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)

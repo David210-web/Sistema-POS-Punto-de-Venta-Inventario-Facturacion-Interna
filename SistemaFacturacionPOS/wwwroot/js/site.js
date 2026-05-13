@@ -45,4 +45,40 @@ $(document).ready(function () {
     $(window).on('popstate', function () {
         location.reload();
     });
+
+    // Sanitización global de inputs
+    setupInputSanitization();
 });
+
+/**
+ * Sanitiza una cadena eliminando caracteres potencialmente peligrosos o no deseados.
+ * Bloquea: < > ' " / \ ; 
+ */
+function sanitizeString(str) {
+    if (typeof str !== 'string') return str;
+    // Expresión regular para caracteres prohibidos
+    const forbiddenChars = /[<>'"/\\;]/g;
+    return str.replace(forbiddenChars, '');
+}
+
+/**
+ * Aplica sanitización automática en tiempo real a todos los inputs de tipo texto y textareas.
+ */
+function setupInputSanitization() {
+    $(document).on('input', 'input[type="text"], input[type="search"], textarea', function () {
+        const input = $(this);
+        const originalValue = input.val();
+        const sanitizedValue = sanitizeString(originalValue);
+
+        if (originalValue !== sanitizedValue) {
+            // Guardar posición del cursor para evitar que salte al final
+            const start = this.selectionStart;
+            const end = this.selectionEnd;
+            
+            input.val(sanitizedValue);
+            
+            // Restaurar posición del cursor (ajustada si se eliminó un carácter)
+            this.setSelectionRange(start - 1, end - 1);
+        }
+    });
+}

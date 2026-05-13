@@ -26,6 +26,16 @@ $(document).ready(function () {
             return;
         }
 
+        if (monto > 9999999999.99) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Atención',
+                text: 'El monto ingresado es demasiado grande.',
+                confirmButtonColor: '#0d6efd'
+            });
+            return;
+        }
+
         $.ajax({
             url: '/Caja/AbrirCaja',
             type: 'POST',
@@ -68,6 +78,26 @@ $(document).ready(function () {
         e.preventDefault();
 
         let montoFisico = parseFloat($('#montoFisico').val());
+
+        if (isNaN(montoFisico) || montoFisico < 0) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Atención',
+                text: 'Ingrese un monto válido mayor o igual a 0.',
+                confirmButtonColor: '#0d6efd'
+            });
+            return;
+        }
+
+        if (montoFisico > 9999999999.99) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Atención',
+                text: 'El monto físico ingresado es demasiado grande.',
+                confirmButtonColor: '#0d6efd'
+            });
+            return;
+        }
 
         $.ajax({
             url: '/Caja/CerrarCaja',
