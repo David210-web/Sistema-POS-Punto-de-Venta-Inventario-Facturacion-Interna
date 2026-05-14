@@ -1,22 +1,20 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using SistemaFacturacionPOS.Contexto;
 using SistemaFacturacionPOS.Models;
+using SistemaFacturacionPOS.Services.Interfaces;
 
 namespace SistemaFacturacionPOS.Controllers.Inventario
 {
     [Authorize(Roles = "Administrador")]
     public class BodegasController : Controller
     {
-        private readonly SistemaFacturacionPOSContext context;
+        private readonly IBodegasService _bodegasService;
 
-        public BodegasController(SistemaFacturacionPOSContext context)
+        public BodegasController(IBodegasService bodegasService)
         {
-            this.context = context;
+            _bodegasService = bodegasService;
         }
 
-        // Devuelve la vista (partial o completa según ajax)
         public IActionResult Index()
         {
             if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
@@ -24,92 +22,40 @@ namespace SistemaFacturacionPOS.Controllers.Inventario
             return View();
         }
 
-        // GET /Bodegas/GetBodegas
         [HttpGet]
         public async Task<IActionResult> GetBodegas()
         {
-            try
-            {
-                var bodegas = await context.Bodegas
-                    .Where(b => b.DeletedAt == null)
-                    .Select(b => new { b.Id, b.Nombre, b.Descripcion })
-                    .ToListAsync();
-                return StatusCode(200, bodegas);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"Error al obtener bodegas: {ex.Message}");
-            }
+            var (ok, data, msg) = await _bodegasService.GetBodegasAsync();
+            if (!ok) return StatusCode(500, $"Error al obtener bodegas: {msg}");
+            return StatusCode(200, data);
         }
 
-        // POST /Bodegas/AgregarBodega
         [HttpPost]
         public async Task<IActionResult> AgregarBodega([FromBody] Bodega bodega)
         {
-            try
-            {
-                if (string.IsNullOrWhiteSpace(bodega.Nombre))
-                    return BadRequest("El nombre de la bodega es requerido.");
-
-                bodega.DeletedAt = null;
-                context.Bodegas.Add(bodega);
-                await context.SaveChangesAsync();
-                return StatusCode(200, "Bodega creada satisfactoriamente.");
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"Error al crear la bodega: {ex.Message}");
-            }
+            var (ok, msg) = await _bodegasService.AgregarBodegaAsync(bodega);
+            if (msg == "El nombre de la bodega es requerido.") return BadRequest(msg);
+            if (!ok) return StatusCode(500, $"Error al crear la bodega: {msg}");
+            return StatusCode(200, msg);
         }
 
-        // PUT /Bodegas/ActualizarBodega/{id}
         [HttpPut]
         public async Task<IActionResult> ActualizarBodega(Guid id, [FromBody] Bodega bodega)
         {
-            try
-            {
-                var existing = await context.Bodegas.FindAsync(id);
-                if (existing == null || existing.DeletedAt != null)
-                    return StatusCode(404, "Bodega no encontrada.");
-
-                if (string.IsNullOrWhiteSpace(bodega.Nombre))
-                    return BadRequest("El nombre de la bodega es requerido.");
-
-                existing.Nombre = bodega.Nombre;
-                existing.Descripcion = bodega.Descripcion;
-                await context.SaveChangesAsync();
-                return StatusCode(200, "Bodega actualizada exitosamente.");
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"Error al actualizar la bodega: {ex.Message}");
-            }
+            var (ok, msg) = await _bodegasService.ActualizarBodegaAsync(id, bodega);
+            if (msg == "Bodega no encontrada.") return StatusCode(404, msg);
+            if (msg == "El nombre de la bodega es requerido.") return BadRequest(msg);
+            if (!ok) return StatusCode(500, $"Error al actualizar la bodega: {msg}");
+            return StatusCode(200, msg);
         }
 
-        // DELETE /Bodegas/EliminarBodega/{id}
         [HttpDelete]
         public async Task<IActionResult> EliminarBodega(Guid id)
         {
-            try
-            {
-                var existing = await context.Bodegas.FindAsync(id);
-                if (existing == null || existing.DeletedAt != null)
-                    return StatusCode(404, "Bodega no encontrada.");
-
-                // Verificar si tiene productos asignados (Opción A: error controlado)
-                bool tieneStock = await context.ProductoBodegas
-                    .AnyAsync(pb => pb.BodegaId == id);
-                if (tieneStock)
-                    return StatusCode(400, "No se puede eliminar la bodega porque tiene productos con stock asignado. Reasigne o elimine las existencias primero.");
-
-                existing.DeletedAt = DateTimeOffset.Now;
-                await context.SaveChangesAsync();
-                return StatusCode(200, "Bodega eliminada exitosamente.");
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"Error al eliminar la bodega: {ex.Message}");
-            }
+            var (ok, msg) = await _bodegasService.EliminarBodegaAsync(id);
+            if (msg == "Bodega no encontrada.") return StatusCode(404, msg);
+            if (!ok) return StatusCode(400, msg);
+            return StatusCode(200, msg);
         }
     }
 }

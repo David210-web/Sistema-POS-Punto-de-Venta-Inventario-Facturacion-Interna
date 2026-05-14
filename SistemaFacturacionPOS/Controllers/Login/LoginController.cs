@@ -1,29 +1,25 @@
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using SistemaFacturacionPOS.Contexto;
-using SistemaFacturacionPOS.Managers;
+using SistemaFacturacionPOS.Services.Interfaces;
 using System.Security.Claims;
 
 namespace SistemaFacturacionPOS.Controllers.Login
 {
     public class LoginController : Controller
     {
-        private readonly SistemaFacturacionPOSContext _context;
+        private readonly ILoginService _loginService;
 
-        public LoginController(SistemaFacturacionPOSContext context)
+        public LoginController(ILoginService loginService)
         {
-            _context = context;
+            _loginService = loginService;
         }
 
         [HttpGet]
         public IActionResult Index()
         {
-            if (User.Identity.IsAuthenticated)
-            {
+            if (User.Identity!.IsAuthenticated)
                 return RedirectToAction("Index", "Home");
-            }
             return View();
         }
 
@@ -36,42 +32,29 @@ namespace SistemaFacturacionPOS.Controllers.Login
                 return View("Index");
             }
 
-            // Usar AsNoTracking() para que la consulta sea lo más rápida posible (Requisito: < 2 segundos)
-            var usuario = await _context.Usuarios
-                .Include(u => u.Rol)
-                .AsNoTracking()
-                .FirstOrDefaultAsync(u => u.Username == username && u.Activo == true);
+            var usuario = await _loginService.AutenticarAsync(username, password);
 
             if (usuario == null)
             {
-                ViewBag.Error = "Usuario no encontrado o inactivo.";
+                ViewBag.Error = "Usuario no encontrado, inactivo o contraseña incorrecta.";
                 return View("Index");
             }
 
-            // Verificación usando Bcrypt
-            if (!EncriptManager.Verify(password, usuario.PasswordHash))
-            {
-                ViewBag.Error = "Contraseña incorrecta.";
-                return View("Index");
-            }
-
-            // Crear Claims
             var claims = new List<Claim>
             {
                 new Claim(ClaimTypes.NameIdentifier, usuario.Id.ToString()),
-                new Claim(ClaimTypes.Name, usuario.Username),
-                new Claim(ClaimTypes.Role, usuario.Rol.Nombre), // Agregamos el nombre del rol como claim nativo
-                new Claim("RolId", usuario.RolId.ToString())
+                new Claim(ClaimTypes.Name,           usuario.Username),
+                new Claim(ClaimTypes.Role,           usuario.Rol!.Nombre),
+                new Claim("RolId",                   usuario.RolId.ToString())
             };
 
-            var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+            var identity  = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
             var principal = new ClaimsPrincipal(identity);
 
-            // Iniciar sesión
             await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal, new AuthenticationProperties
             {
                 IsPersistent = true,
-                ExpiresUtc = DateTime.UtcNow.AddHours(8)
+                ExpiresUtc   = DateTime.UtcNow.AddHours(8)
             });
 
             return RedirectToAction("Index", "Home");
@@ -85,9 +68,6 @@ namespace SistemaFacturacionPOS.Controllers.Login
         }
 
         [HttpGet]
-        public IActionResult AccesoDenegado()
-        {
-            return View();
-        }
+        public IActionResult AccesoDenegado() => View();
     }
 }

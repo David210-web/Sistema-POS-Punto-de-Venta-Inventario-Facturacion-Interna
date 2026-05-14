@@ -1,132 +1,68 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using SistemaFacturacionPOS.Contexto;
-using SistemaFacturacionPOS.Managers;
 using SistemaFacturacionPOS.Models;
+using SistemaFacturacionPOS.Services.Interfaces;
 
 namespace SistemaFacturacionPOS.Controllers.Usuario
 {
     [Authorize(Roles = "Administrador")]
     public class UsuarioController : Controller
     {
-        private readonly SistemaFacturacionPOSContext context;
+        private readonly IUsuarioService _usuarioService;
 
-        public UsuarioController(SistemaFacturacionPOSContext context)
+        public UsuarioController(IUsuarioService usuarioService)
         {
-            this.context = context;
+            _usuarioService = usuarioService;
         }
 
         public IActionResult Index()
         {
             if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
-            {
                 return PartialView();
-            }
             return View();
         }
 
         [HttpGet]
         public async Task<IActionResult> GetUsuarios()
         {
-            try
-            {
-                var usuarios = await context.Usuarios
-                    .Include(u => u.Rol)
-                    .ToListAsync();
-                return StatusCode(200, usuarios);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"Error al obtener los usuarios: {ex.Message}");
-            }
+            var (ok, data, msg) = await _usuarioService.GetUsuariosAsync();
+            if (!ok) return StatusCode(500, $"Error al obtener los usuarios: {msg}");
+            return StatusCode(200, data);
         }
 
         [HttpPost]
         public async Task<IActionResult> CreateUsuario([FromBody] Models.Usuario usuario)
         {
-            try
-            {
-                var passwordHashed =  EncriptManager.Generate(usuario.PasswordHash);
-                usuario.PasswordHash = passwordHashed;
-                context.Usuarios.Add(usuario);
-                await context.SaveChangesAsync();
-                return StatusCode(201, "Usuario creado exitosamente");
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"Error al crear el usuario: {ex.Message}");
-            }
+            var (ok, msg) = await _usuarioService.CreateUsuarioAsync(usuario);
+            if (!ok) return StatusCode(500, $"Error al crear el usuario: {msg}");
+            return StatusCode(201, msg);
         }
 
         [HttpPut]
         public async Task<IActionResult> UpdateUsuario(Guid id, [FromBody] Models.Usuario usuario)
         {
-            try
-            {
-                var existingUsuario = await context.Usuarios.FindAsync(id);
-                if (existingUsuario == null)
-                {
-                    return StatusCode(404, "Usuario no encontrado");
-                }
-                existingUsuario.Username = usuario.Username;
-                existingUsuario.RolId = usuario.RolId;
-                existingUsuario.UpdatedAt = DateTimeOffset.Now;
-                context.Usuarios.Update(existingUsuario);
-                await context.SaveChangesAsync();
-                return StatusCode(200, "Usuario actualizado exitosamente");
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"Error al actualizar el usuario: {ex.Message}");
-            }
+            var (ok, msg) = await _usuarioService.UpdateUsuarioAsync(id, usuario);
+            if (msg == "Usuario no encontrado") return StatusCode(404, msg);
+            if (!ok) return StatusCode(500, $"Error al actualizar el usuario: {msg}");
+            return StatusCode(200, msg);
         }
 
         [HttpPatch]
         public async Task<IActionResult> PatchUsuario(Guid id, [FromBody] Models.Usuario usuario)
         {
-            try
-            {
-                var existingUsuario = await context.Usuarios.FindAsync(id);
-                if (existingUsuario == null)
-                {
-                    return StatusCode(404, "Usuario no encontrado");
-                }
-
-                existingUsuario.Activo = usuario.Activo ?? existingUsuario.Activo;
-                existingUsuario.UpdatedAt = DateTimeOffset.Now;
-                context.Usuarios.Update(existingUsuario);
-                await context.SaveChangesAsync();
-                return StatusCode(200, "Usuario actualizado exitosamente");
-
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"Error al actualizar el usuario: {ex.Message}");
-            }
+            var (ok, msg) = await _usuarioService.PatchUsuarioAsync(id, usuario);
+            if (msg == "Usuario no encontrado") return StatusCode(404, msg);
+            if (!ok) return StatusCode(500, $"Error al actualizar el usuario: {msg}");
+            return StatusCode(200, msg);
         }
 
         [HttpPut]
-        public async Task<IActionResult> RestablecerContraseña(Guid id) { 
-            try
-            {
-                var existingUsuario = await context.Usuarios.FindAsync(id);
-                if (existingUsuario == null)
-                {
-                    return StatusCode(404, "Usuario no encontrado");
-                }
-
-                // Lógica para restablecer la contraseña
-                existingUsuario.PasswordHash = existingUsuario.Username; // Reemplazar con la lógica real
-                existingUsuario.UpdatedAt = DateTimeOffset.Now;
-                context.Usuarios.Update(existingUsuario);
-                await context.SaveChangesAsync();
-                return StatusCode(200, "Contraseña restablecida exitosamente");
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"Error al restablecer la contraseña: {ex.Message}");
-            }
+        public async Task<IActionResult> RestablecerContraseña(Guid id)
+        {
+            var (ok, msg) = await _usuarioService.RestablecerContraseñaAsync(id);
+            if (msg == "Usuario no encontrado") return StatusCode(404, msg);
+            if (!ok) return StatusCode(500, $"Error al restablecer la contraseña: {msg}");
+            return StatusCode(200, msg);
         }
     }
 }

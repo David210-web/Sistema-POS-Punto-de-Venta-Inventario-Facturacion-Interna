@@ -2,7 +2,11 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
 using SistemaFacturacionPOS.Contexto;
 using SistemaFacturacionPOS.Services;
+using SistemaFacturacionPOS.Services.Interfaces;
+using SistemaFacturacionPOS.Repositories;
+using SistemaFacturacionPOS.Repositories.Interfaces;
 using SistemaFacturacionPOS.Interceptors;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -17,9 +21,37 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<IAuditService, AuditService>();
 builder.Services.AddScoped<AuditInterceptor>();
 
+// ── Repositorios ────────────────────────────────────────────────────────────
+builder.Services.AddScoped<ILoginRepository,          LoginRepository>();
+builder.Services.AddScoped<IPOSRepository,            POSRepository>();
+builder.Services.AddScoped<ICajaRepository,           CajaRepository>();
+builder.Services.AddScoped<IFacturacionRepository,    FacturacionRepository>();
+builder.Services.AddScoped<IProductosRepository,      ProductosRepository>();
+builder.Services.AddScoped<IBodegasRepository,        BodegasRepository>();
+builder.Services.AddScoped<IProductoBodegaRepository, ProductoBodegaRepository>();
+builder.Services.AddScoped<IUsuarioRepository,        UsuarioRepository>();
+builder.Services.AddScoped<IRolesRepository,          RolesRepository>();
+builder.Services.AddScoped<IHomeRepository,           HomeRepository>();
+builder.Services.AddScoped<ILogsRepository,           LogsRepository>();
+builder.Services.AddScoped<IConfiguracionRepository,  ConfiguracionRepository>();
+
+// ── Servicios de dominio ─────────────────────────────────────────────────────
+builder.Services.AddScoped<ILoginService,          LoginService>();
+builder.Services.AddScoped<IPOSService,            POSService>();
+builder.Services.AddScoped<ICajaService,           CajaService>();
+builder.Services.AddScoped<IFacturacionService,    FacturacionService>();
+builder.Services.AddScoped<IProductosService,      ProductosService>();
+builder.Services.AddScoped<IBodegasService,        BodegasService>();
+builder.Services.AddScoped<IProductoBodegaService, ProductoBodegaService>();
+builder.Services.AddScoped<IUsuarioService,        UsuarioService>();
+builder.Services.AddScoped<IRolesService,          RolesService>();
+builder.Services.AddScoped<IHomeService,           HomeService>();
+builder.Services.AddScoped<ILogsService,           LogsService>();
+builder.Services.AddScoped<IConfiguracionService,  ConfiguracionService>();
+
 builder.Services.AddDbContext<SistemaFacturacionPOSContext>((serviceProvider, options) =>
 {
-    options.UseSqlServer("Server=DESKTOP-ECF04TK\\SQLHRNDZ;Database=SistemaPOS;Integrated Security=True;TrustServerCertificate=True;");
+    options.UseSqlServer("Server=localhost;Database=SistemaPOS;User Id=sa;Password=FCb@rcelona2002;TrustServerCertificate=True;");
     options.AddInterceptors(serviceProvider.GetRequiredService<AuditInterceptor>());
 });
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
